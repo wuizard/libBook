@@ -14,9 +14,15 @@ module.exports = {
             let skip = Number(limit) * (Number(page) - 1)
             
             let params = {}
+
             if (keywords) {
+                let regExp = new RegExp('\^' + keywords, "i");
                 params = {
-                    title: {$regex: keywords, $options: 'i'}
+                    $or: [
+                        { title: {$regex: keywords, $options: 'i'} },
+                        { author: {$regex: keywords, $options: 'i'} },
+                        { genres: {$in: [ regExp ] }},
+                    ]
                 }
             }
 
