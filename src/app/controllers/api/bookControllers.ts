@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import response from '../../helper/output/output';
 import { Books } from '../../../model/index';
+import { validationResult  } from 'express-validator';
 
 
 module.exports = {
@@ -59,7 +60,12 @@ module.exports = {
     createBooks: async (req: Request, res: Response) => {
         try {
             let { body } = req
-            
+            let err = validationResult(req)
+            if (!err.isEmpty()) {
+                console.log(err.mapped())
+                // you stop here 
+                throw 'Wrong input format'
+            }
             // validate if already saved
 
             let books = await Books.create({
@@ -82,6 +88,12 @@ module.exports = {
         try {
             let { body, params } = req
             let { id } = params
+            let err = validationResult(req)
+            if (!err.isEmpty()) {
+                console.log(err.mapped())
+                // you stop here 
+                throw 'Wrong input format'
+            }
             
             // validate if already saved
             let bookExist = await Books.findOne({_id: id}).lean()
@@ -104,14 +116,14 @@ module.exports = {
     },
     deleteBooks: async (req: Request, res: Response) => {
         try {
-            let { body, params } = req
+            let { params } = req
             let { id } = params
             
             // validate if already saved
             let bookExist = await Books.findOne({_id: id}).lean()
             if (!bookExist) { throw "Books not exist" }
 
-            let books = await Books.findOneAndDelete({
+            await Books.findOneAndDelete({
                 _id: id
             })
 
